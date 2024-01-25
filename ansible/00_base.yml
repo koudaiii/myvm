@@ -1,4 +1,3 @@
----
 - hosts: guests:extras
   become: yes
   gather_facts: no
@@ -33,15 +32,8 @@
     - apt: name=libxml2-dev state=present
     - apt: name=libxslt1-dev state=present
     - apt: name=readline-common state=present
-    - apt: name=curl state=present
     - apt: name=pkg-config
     - apt: name=acl
-    - apt: name=docker-ce
-    - apt: name=docker-ce-cli
-    - apt: name=containerd.io
-    - apt: name=docker-buildx-plugin
-    - apt: name=docker-compose-plugin
----
 - hosts: guests:extras
   become: yes
   gather_facts: no
@@ -58,17 +50,14 @@
           - python3-setuptools
         state: latest
         update_cache: true
-
     - name: Add Docker GPG apt Key
       apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
-
     - name: Add Docker Repository
       apt_repository:
         repo: deb https://download.docker.com/linux/ubuntu jammy stable
         state: present
-
     - name: Update apt and install docker-ce and docker-compose
       apt:
         pkg:

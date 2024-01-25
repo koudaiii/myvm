@@ -1,6 +1,4 @@
----
 - hosts: guests:extras
-#- hosts: extras
   become: yes
   become_user: sakabekodai
   gather_facts: no

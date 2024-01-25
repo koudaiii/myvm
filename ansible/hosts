@@ -1,2 +1,2 @@
 [guests]
-sakabekodai
+localhost ansible_connection=local
