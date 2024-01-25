@@ -1,0 +1,21 @@
+---
+- hosts: guests:extras
+#- hosts: extras
+  become: yes
+  become_user: sakabekodai
+  gather_facts: no
+  tasks:
+    - git:
+        repo=https://github.com/tagomoris/xbuild.git
+        dest=/home/sakabekodai/.xbuild
+        update=yes
+    # ruby
+    # datasource=ruby-version depName=ruby
+    - command: /home/sakabekodai/.xbuild/ruby-install 3.2.2 /home/sakabekodai/.local/ruby
+      args:
+        creates: /home/sakabekodai/.local/ruby/bin/ruby
+    # golang
+    # datasource=golang-version depName=golang
+    - shell: /home/sakabekodai/.xbuild/go-install 1.21.1 /home/sakabekodai/.local/go $(uname -s | tr [A-Z] [a-z]) $(dpkg --print-architecture)
+      args:
+        creates: /home/sakabekodai/.local/go/bin/go

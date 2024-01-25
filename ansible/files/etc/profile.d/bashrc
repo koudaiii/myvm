@@ -1,0 +1,8 @@
+#!/bin/bash
+if [ -f /etc/bashrc ]; then
+  . /etc/bashrc
+fi
+
+export PATH=/usr/local/bin:$PATH
+export PATH=/home/sakabekodai/.local/ruby/bin:$PATH
+export PATH=/home/sakabekodai/.local/go/bin:$PATH

@@ -1,0 +1,23 @@
+---
+- hosts: guests:extras
+#- hosts: extras
+  gather_facts: no
+  become: yes
+  tasks:
+    - name: change timezone to JST
+      shell: cp -p /usr/share/zoneinfo/Japan /etc/localtime || true
+    - group: name=wheel
+    - user: name=sakabekodai groups=wheel shell=/bin/bash
+    - copy: src=../files/etc/profile.d/bashrc dest=/home/sakabekodai/.profile owner=sakabekodai mode=755
+    - lineinfile: dest=/etc/sudoers state=present regexp='^%wheel ALL\=' line='%wheel ALL=(ALL) NOPASSWD:ALL' validate='visudo -cf %s'
+---
+- hosts: guests:extras
+  gather_facts: no
+  become: yes
+  become_user: sakabekodai
+  tasks:
+    - name: Set authorized keys taken from url
+      ansible.posix.authorized_key:
+        user: sakabekodai
+        state: present
+        key: https://github.com/koudaiii.keys

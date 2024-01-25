@@ -1,0 +1,75 @@
+#!/bin/bash
+set -e
+
+PREFIX=$(date "+%Y%m%d%H%M%S")
+RESOURCE_GROUP_NAME=vpnp2s
+VM_NAME=$PREFIX-vm
+VM_IMAGE=Ubuntu2204
+VM_SIZE=Standard_DS2_v2 # DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
+LOCATION=japaneast
+
+while getopts s: OPT; do
+    case $OPT in
+    "s")
+        FLG_S="TRUE"
+        SUBSCRIPTION_ID="$OPTARG"
+        ;;
+    *)
+        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
+        exit 1
+        ;;
+    esac
+done
+
+if [ "$FLG_S" != "TRUE" ]; then
+        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
+        exit 1
+fi
+
+az login
+
+echo "az vm create \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --location $LOCATION \
+  --name $VM_NAME \
+  --image $VM_IMAGE \
+  --size $VM_SIZE \
+  --storage-sku Premium_LRS \
+  --data-disk-sizes-gb 128 \
+  --vnet-name VNet \
+  --custom-data cloud-init.cfg \
+  --generate-ssh-keys \
+  --priority Spot \
+  --max-price -1 \
+  --eviction-policy Deallocate \
+  --subscription $SUBSCRIPTION_ID" \
+  --subnet-address-prefix 10.1.0.0/24
+
+az vm create \
+  --resource-group $RESOURCE_GROUP_NAME \
+  --location $LOCATION \
+  --name $VM_NAME \
+  --image $VM_IMAGE \
+  --size $VM_SIZE \
+  --storage-sku Premium_ZRS \
+  --data-disk-sizes-gb 128 \
+  --vnet-name VNet \
+  --nsg-rule SSH \
+  --accelerated-networking true \
+  --custom-data cloud-init.cfg \
+  --generate-ssh-keys \
+  --priority Spot \
+  --max-price -1 \
+  --eviction-policy Deallocate \
+  --subscription $SUBSCRIPTION_ID \
+  --subnet-address-prefix 10.1.0.0/24
+
+echo ""
+echo "Complated!"
+echo ""
+echo "----------------------------------------------------------------"
+echo "# How to login to VM"
+echo ""
+echo "Run Azure VPN Client and connect to VPN."
+echo "ssh $(whoami)@$(az vm show -n $VM_NAME -g $RESOURCE_GROUP_NAME --show-details -o json --query privateIps -o tsv)"
+echo ""
