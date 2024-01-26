@@ -26,6 +26,10 @@ if [ "$FLG_S" != "TRUE" ]; then
         exit 1
 fi
 
+sed -i -e "s/sakabekodai/$USER/g" cloud-init.cfg
+sed -i -e "s/sakabekodai/$USER/g" ansible/*.yml
+sed -i -e "s/sakabekodai/$USER/g" ansible/files/etc/profile.d/bashrc
+
 az login
 
 echo "az vm create \
