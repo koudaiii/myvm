@@ -2,7 +2,7 @@
 set -e
 
 PREFIX=$(date "+%Y%m%d%H%M%S")
-RESOURCE_GROUP_NAME=vpnp2s
+RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-vpnp2s}
 VM_NAME=$PREFIX-vm
 VM_IMAGE=Ubuntu2204
 VM_SIZE=Standard_DS2_v2 # DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
