@@ -2,8 +2,11 @@
 set -e
 
 PREFIX=$(date "+%Y%m%d%H%M%S")
-RESOURCE_GROUP_NAME=vpnp2s
+RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-vpnp2s}
+VNET_NAME=${VNET_NAME:-VNet}
+SUBNET_ADDRESS_PREFIX=${SUBNET_ADDRESS_PREFIX:-10.1.2.0/24}
 VM_NAME=$PREFIX-vm
+GITHUB_USER=${GITHUB_USER:-koudaiii}
 VM_IMAGE=Ubuntu2204
 VM_SIZE=Standard_DS2_v2 # DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
 LOCATION=japaneast
@@ -26,6 +29,24 @@ if [ "$FLG_S" != "TRUE" ]; then
         exit 1
 fi
 
+# macos only
+if [ "$(uname)" != 'Darwin' ]; then
+  echo "Your platform ($(uname -a)) is not supported."
+  exit 1
+fi
+
+# check az command
+if [ -z "$(which az)" ]; then
+  echo "az command not found. Please install Azure CLI."
+  exit 1
+fi
+
+# rewrite
+sed -i -e "s/sakabekodai/$USER/g" cloud-init.cfg
+sed -i -e "s/sakabekodai/$USER/g" ansible/*.yml
+sed -i -e "s/sakabekodai/$USER/g" ansible/files/etc/profile.d/bashrc
+sed -i -e "s/koudaiii/$GITHUB_USER/g" ansible/*.yml
+
 az login
 
 echo "az vm create \
@@ -36,14 +57,14 @@ echo "az vm create \
   --size $VM_SIZE \
   --storage-sku Premium_LRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name VNet \
+  --vnet-name $VNET_NAME \
   --custom-data cloud-init.cfg \
   --generate-ssh-keys \
   --priority Spot \
   --max-price -1 \
   --eviction-policy Deallocate \
-  --subscription $SUBSCRIPTION_ID" \
-  --subnet-address-prefix 10.1.0.0/24
+  --subscription $SUBSCRIPTION_ID \
+  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX"
 
 az vm create \
   --resource-group $RESOURCE_GROUP_NAME \
@@ -53,7 +74,7 @@ az vm create \
   --size $VM_SIZE \
   --storage-sku Premium_ZRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name VNet \
+  --vnet-name $VNET_NAME \
   --nsg-rule SSH \
   --accelerated-networking true \
   --custom-data cloud-init.cfg \
@@ -62,7 +83,7 @@ az vm create \
   --max-price -1 \
   --eviction-policy Deallocate \
   --subscription $SUBSCRIPTION_ID \
-  --subnet-address-prefix 10.1.0.0/24
+  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX
 
 echo ""
 echo "Complated!"
