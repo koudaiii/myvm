@@ -13,12 +13,11 @@ MyVM is a sample for development.
 ## Before you begin
 
 To run this sample, you need the following prerequisites.
-- require
 
 ## Usage
 
 ```console
-$ script/bootstrap -s xxx-xxx-xxxx-xxx -g xxxx
+$ script/bootstrap
 ```
 
 ## Contribution

@@ -2,38 +2,14 @@
 set -e
 
 PREFIX=$(date "+%Y%m%d%H%M%S")
-RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-vpnp2s}
-VNET_NAME=${VNET_NAME:-VNet}
-SUBNET_ADDRESS_PREFIX=${SUBNET_ADDRESS_PREFIX:-10.1.2.0/24}
 VM_NAME=$PREFIX-vm
-GITHUB_USER=${GITHUB_USER:-koudaiii}
-VM_IMAGE=Ubuntu2204
-VM_SIZE=Standard_DS2_v2 # DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
-LOCATION=japaneast
+SUBSCRIPTION_ID="0bf5bc92-8ea2-4160-a704-7130857f3ba3"
 
-while getopts s: OPT; do
-    case $OPT in
-    "s")
-        FLG_S="TRUE"
-        SUBSCRIPTION_ID="$OPTARG"
-        ;;
-    *)
-        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
-        exit 1
-        ;;
-    esac
-done
-
-if [ "$FLG_S" != "TRUE" ]; then
-        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
-        exit 1
-fi
-
-# macos only
-if [ "$(uname)" != 'Darwin' ]; then
-  echo "Your platform ($(uname -a)) is not supported."
-  exit 1
-fi
+# resourcegroup: vpnp2s
+# vnet: VNet
+# subnet: vmSubnet
+# location: japaneast
+# vmimage: DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
 
 # check az command
 if [ -z "$(which az)" ]; then
