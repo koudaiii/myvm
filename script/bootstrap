@@ -17,12 +17,6 @@ if [ -z "$(which az)" ]; then
   exit 1
 fi
 
-# rewrite
-sed -i -e "s/sakabekodai/$USER/g" cloud-init.cfg
-sed -i -e "s/sakabekodai/$USER/g" ansible/*.yml
-sed -i -e "s/sakabekodai/$USER/g" ansible/files/etc/profile.d/bashrc
-sed -i -e "s/koudaiii/$GITHUB_USER/g" ansible/*.yml
-
 az login
 
 echo "az vm create \
@@ -68,5 +62,5 @@ echo "----------------------------------------------------------------"
 echo "# How to login to VM"
 echo ""
 echo "Run Azure VPN Client and connect to VPN."
-echo "ssh $(whoami)@$(az vm show -n $VM_NAME -g $RESOURCE_GROUP_NAME --show-details -o json --query privateIps -o tsv)"
+echo "ssh koudaiii@$(az vm show -n $VM_NAME -g vpnp2s --show-details -o json --query privateIps -o tsv)"
 echo ""

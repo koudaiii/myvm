@@ -4,5 +4,6 @@ if [ -f /etc/bashrc ]; then
 fi
 
 export PATH=/usr/local/bin:$PATH
-export PATH=/home/sakabekodai/.local/ruby/bin:$PATH
-export PATH=/home/sakabekodai/.local/go/bin:$PATH
+export PATH=/home/koudaiii/.local/ruby/bin:$PATH
+export PATH=/home/koudaiii/.local/go/bin:$PATH
+export PATH=/home/koudaiii/.local/python/bin:$PATH
