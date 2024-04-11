@@ -18,42 +18,41 @@ if [ -z "$(which az)" ]; then
 fi
 
 az login
+az account set --subscription $SUBSCRIPTION_ID
 
 echo "az vm create \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --location $LOCATION \
+  --resource-group vpnp2s \
+  --location japaneast \
   --name $VM_NAME \
-  --image $VM_IMAGE \
-  --size $VM_SIZE \
+  --image Ubuntu2204 \
+  --size Standard_DS2_v2 \
   --storage-sku Premium_LRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name $VNET_NAME \
+  --vnet-name VNet \
   --custom-data cloud-init.cfg \
   --generate-ssh-keys \
   --priority Spot \
   --max-price -1 \
   --eviction-policy Deallocate \
-  --subscription $SUBSCRIPTION_ID \
-  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX"
+  --subnet vmSubnet \
+  --public-ip-address \"\""
 
 az vm create \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --location $LOCATION \
+  --resource-group vpnp2s \
+  --location japaneast \
   --name $VM_NAME \
-  --image $VM_IMAGE \
-  --size $VM_SIZE \
-  --storage-sku Premium_ZRS \
+  --image Ubuntu2204 \
+  --size Standard_DS2_v2 \
+  --storage-sku Premium_LRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name $VNET_NAME \
-  --nsg-rule SSH \
-  --accelerated-networking true \
+  --vnet-name VNet \
   --custom-data cloud-init.cfg \
   --generate-ssh-keys \
   --priority Spot \
   --max-price -1 \
   --eviction-policy Deallocate \
-  --subscription $SUBSCRIPTION_ID \
-  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX
+  --subnet vmSubnet \
+  --public-ip-address ""
 
 echo ""
 echo "Complated!"
