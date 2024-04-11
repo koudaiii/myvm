@@ -2,38 +2,14 @@
 set -e
 
 PREFIX=$(date "+%Y%m%d%H%M%S")
-RESOURCE_GROUP_NAME=${RESOURCE_GROUP_NAME:-vpnp2s}
-VNET_NAME=${VNET_NAME:-VNet}
-SUBNET_ADDRESS_PREFIX=${SUBNET_ADDRESS_PREFIX:-10.1.2.0/24}
 VM_NAME=$PREFIX-vm
-GITHUB_USER=${GITHUB_USER:-koudaiii}
-VM_IMAGE=Ubuntu2204
-VM_SIZE=Standard_DS2_v2 # DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
-LOCATION=japaneast
+SUBSCRIPTION_ID="0bf5bc92-8ea2-4160-a704-7130857f3ba3"
 
-while getopts s: OPT; do
-    case $OPT in
-    "s")
-        FLG_S="TRUE"
-        SUBSCRIPTION_ID="$OPTARG"
-        ;;
-    *)
-        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
-        exit 1
-        ;;
-    esac
-done
-
-if [ "$FLG_S" != "TRUE" ]; then
-        echo -e "Usage: script/bootstrap [-s SUBSCRIPTION_ID]" 1>&2
-        exit 1
-fi
-
-# macos only
-if [ "$(uname)" != 'Darwin' ]; then
-  echo "Your platform ($(uname -a)) is not supported."
-  exit 1
-fi
+# resourcegroup: vpnp2s
+# vnet: VNet
+# subnet: vmSubnet
+# location: japaneast
+# vmimage: DS2 v2: 2 vCPU、7 GB の RAM、14 GB の一時ストレージ, $0.140/時間
 
 # check az command
 if [ -z "$(which az)" ]; then
@@ -41,49 +17,44 @@ if [ -z "$(which az)" ]; then
   exit 1
 fi
 
-# rewrite
-sed -i -e "s/sakabekodai/$USER/g" cloud-init.cfg
-sed -i -e "s/sakabekodai/$USER/g" ansible/*.yml
-sed -i -e "s/sakabekodai/$USER/g" ansible/files/etc/profile.d/bashrc
-sed -i -e "s/koudaiii/$GITHUB_USER/g" ansible/*.yml
-
 az login
+az account set --subscription $SUBSCRIPTION_ID
 
 echo "az vm create \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --location $LOCATION \
+  --resource-group vpnp2s \
+  --location japaneast \
   --name $VM_NAME \
-  --image $VM_IMAGE \
-  --size $VM_SIZE \
+  --admin-username koudaiii \
+  --image Ubuntu2204 \
+  --size Standard_DS2_v2 \
   --storage-sku Premium_LRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name $VNET_NAME \
+  --vnet-name VNet \
   --custom-data cloud-init.cfg \
   --generate-ssh-keys \
   --priority Spot \
   --max-price -1 \
   --eviction-policy Deallocate \
-  --subscription $SUBSCRIPTION_ID \
-  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX"
+  --subnet vmSubnet \
+  --public-ip-address \"\""
 
 az vm create \
-  --resource-group $RESOURCE_GROUP_NAME \
-  --location $LOCATION \
+  --resource-group vpnp2s \
+  --location japaneast \
   --name $VM_NAME \
-  --image $VM_IMAGE \
-  --size $VM_SIZE \
-  --storage-sku Premium_ZRS \
+  --admin-username koudaiii \
+  --image Ubuntu2204 \
+  --size Standard_DS2_v2 \
+  --storage-sku Premium_LRS \
   --data-disk-sizes-gb 128 \
-  --vnet-name $VNET_NAME \
-  --nsg-rule SSH \
-  --accelerated-networking true \
+  --vnet-name VNet \
   --custom-data cloud-init.cfg \
   --generate-ssh-keys \
   --priority Spot \
   --max-price -1 \
   --eviction-policy Deallocate \
-  --subscription $SUBSCRIPTION_ID \
-  --subnet-address-prefix $SUBNET_ADDRESS_PREFIX
+  --subnet vmSubnet \
+  --public-ip-address ""
 
 echo ""
 echo "Complated!"
@@ -92,5 +63,5 @@ echo "----------------------------------------------------------------"
 echo "# How to login to VM"
 echo ""
 echo "Run Azure VPN Client and connect to VPN."
-echo "ssh $(whoami)@$(az vm show -n $VM_NAME -g $RESOURCE_GROUP_NAME --show-details -o json --query privateIps -o tsv)"
+echo "ssh koudaiii@$(az vm show -n $VM_NAME -g vpnp2s --show-details -o json --query privateIps -o tsv)"
 echo ""
