@@ -24,6 +24,7 @@ echo "az vm create \
   --resource-group vpnp2s \
   --location japaneast \
   --name $VM_NAME \
+  --admin-username koudaiii \
   --image Ubuntu2204 \
   --size Standard_DS2_v2 \
   --storage-sku Premium_LRS \
@@ -41,6 +42,7 @@ az vm create \
   --resource-group vpnp2s \
   --location japaneast \
   --name $VM_NAME \
+  --admin-username koudaiii \
   --image Ubuntu2204 \
   --size Standard_DS2_v2 \
   --storage-sku Premium_LRS \
